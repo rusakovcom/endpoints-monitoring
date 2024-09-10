@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 180s  # Set the scrape interval
+
+scrape_configs:
+  - job_name: 'blackbox'
+    scrape_interval: 60s
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Use the module defined in blackbox.yml
+    static_configs:
+      - targets:
+        - https://github.com/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox_exporter:9115  # Address of your Blackbox Exporter
+
+  - job_name: 'node-exporter'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['node-exporter:9100']
